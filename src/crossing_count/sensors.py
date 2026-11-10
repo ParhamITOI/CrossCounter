@@ -111,7 +111,7 @@ def _when(text: str, line: int, what: str) -> datetime:
     except ValueError:
         for f in _FORMATS:
             try:
-                return datetime.strptime(t, f)  # noqa: DTZ007  (the store's own clock, as the footage's)
+                return datetime.strptime(t, f)  # the store's own clock, as the footage's
             except ValueError:
                 continue
         raise SensorError(f"Line {line}: {what} {t!r} is not a date and time (use "

@@ -7,7 +7,7 @@ from datetime import datetime
 from crossing_count.export import sensor_accuracy
 from crossing_count.manual import intervals_for, merge_ranges, unwatched_ranges
 
-START = datetime(2026, 9, 12, 11, 30, 0)  # noqa: DTZ001 - wall clock as in the filename
+START = datetime(2026, 9, 12, 11, 30, 0)  # wall clock as in the filename
 
 
 def test_watched_stretches_merge_and_gaps_are_listed() -> None:
@@ -20,7 +20,7 @@ def test_watched_stretches_merge_and_gaps_are_listed() -> None:
 def test_intervals_follow_the_sensors_quarter_hours() -> None:
     (only,) = intervals_for(START, 900.0)
     assert only["key"] == "11:30" and only["full"] is True
-    a, b = intervals_for(datetime(2026, 9, 12, 11, 37), 1200.0)  # noqa: DTZ001
+    a, b = intervals_for(datetime(2026, 9, 12, 11, 37), 1200.0)  # wall clock, as above
     assert (a["key"], a["covered_s"], a["full"]) == ("11:30", 480.0, False)
     assert (b["key"], b["covered_s"], b["full"]) == ("11:45", 720.0, False)
     assert intervals_for(None, 60.0)[0]["key"] == "all"
