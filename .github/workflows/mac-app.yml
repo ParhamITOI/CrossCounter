@@ -19,7 +19,11 @@ permissions:
 
 jobs:
   app:
-    runs-on: macos-14
+    # macos-14 was retired on 2 November 2026 and the build stopped running: a label that no
+    # longer exists has nothing to start on, so the job never began rather than failing. Named
+    # rather than macos-latest, which moves to a new macOS whenever GitHub says so and would
+    # change what the app is built against without anyone choosing it.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
