@@ -560,11 +560,40 @@ def create_wizard_app(sites_dir: Path | None = None, runs_root: Path | None = No
         glob.rn_nodes = nodes
         return nodes[conn.subscription]
 
+    def rn_sets() -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
+        """Every subscription whose stores can be listed, and what went wrong with the rest.
+
+        One subscription that cannot be read must not take the others with it. A key that no
+        longer opens its subscription, or one connected under a name RetailNext does not
+        serve, used to raise while the lists were being gathered - so every store in every
+        other subscription became unfindable, reported against whichever store was asked for
+        and blaming an endpoint that was answering perfectly well for it.
+        """
+        sets: dict[str, list[dict[str, Any]]] = {}
+        missed: list[str] = []
+        for sub, c in rn_connections().items():
+            try:
+                sets[sub] = rn_locations(c)
+            except rn.RetailNextError as exc:
+                missed.append(f"{sub} ({exc})")
+        return sets, missed
+
     def rn_store(code: str) -> tuple[rn.Connection, list[dict[str, Any]], dict[str, Any]]:
         """The store with this code, in whichever connected subscription has it."""
         conns = rn_connections()
-        sets = {sub: rn_locations(c) for sub, c in conns.items()}
-        sub, store = rn.find_store_in(sets, code)
+        sets, missed = rn_sets()
+        if not sets:
+            raise rn.RetailNextError(
+                "None of the connected RetailNext subscriptions could be listed: "
+                + "; ".join(missed) + ".")
+        try:
+            sub, store = rn.find_store_in(sets, code)
+        except rn.RetailNextError as exc:
+            if missed:  # it may well be in one of the subscriptions that could not be asked
+                raise rn.RetailNextError(
+                    f"{exc} These subscriptions could not be asked, so it may be in one of "
+                    f"them: {'; '.join(missed)}.") from exc
+            raise
         return conns[sub], sets[sub], store
 
     def rn_camera_count(code: str) -> int | None:
