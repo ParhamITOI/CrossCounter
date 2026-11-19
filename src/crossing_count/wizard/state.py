@@ -658,13 +658,11 @@ class Wizard:
         return None
 
     def _delivered_store(self) -> dict[str, Any]:
-        """The store as delivery files it. A store RetailNext gives no store id has a code
-        that cannot say its brand, so the RetailNext brand its footage came from goes with it;
-        any other store's brand still comes from its code alone."""
+        """The store as delivery files it, with the RetailNext brand its footage came from.
+        A code with a brand prefix (CN-123) still says the brand; one without (Lorna Jane's
+        453, or a store RetailNext gives no store id) is filed by that brand instead."""
         kept = self.state.get("retailnext") or {}
-        no_id = "store_id" in kept and not kept["store_id"]
-        return {**self.state["store"],
-                "subscription": str(kept.get("subscription") or "") if no_id else ""}
+        return {**self.state["store"], "subscription": str(kept.get("subscription") or "")}
 
     def delivery_plan(self, root: Path | None, footage: bool) -> dict[str, Any] | None:
         """Where this validation would be delivered and what would go with it, to be agreed

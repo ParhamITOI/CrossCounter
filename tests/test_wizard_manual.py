@@ -72,11 +72,12 @@ def test_footage_of_a_store_without_a_store_id_keeps_its_store(manual: Wizard) -
     assert (store["code"], store["name"]) == ("Northam Blvd", "Northam Blvd")
     assert manual.state["retailnext"]["store_uuid"] == "p1"
     assert manual.state["sampling"]["role"] == "peak"
-    # its code says no brand, so delivery is told the RetailNext brand; a store with an id is not
+    # its code says no brand, so delivery is told the RetailNext brand; so is a store with an
+    # id whose code is only a number (Lorna Jane's 453), and footage not from RetailNext is not
     assert manual._delivered_store()["subscription"] == "perdaman"
-    manual.use_download({"subscription": "gazman", "code": "392", "store_id": "392",
-                         "name": "392 Perri Cutten Armadale", "cameras": ["Armadale_Entrance"]})
-    assert manual._delivered_store()["subscription"] == ""
+    manual.use_download({"subscription": "lornajane", "code": "453", "store_id": "453",
+                         "name": "Bowral", "cameras": ["Bowral_Entrance"]})
+    assert manual._delivered_store()["subscription"] == "lornajane"
 
 
 def test_a_store_known_by_its_name_is_not_named_twice_in_the_report(manual: Wizard) -> None:

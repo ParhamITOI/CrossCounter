@@ -93,8 +93,9 @@ def folder_name(brand: str, store: str, code: str) -> str:
 def destination(root: Path, store: dict[str, Any]) -> tuple[Path, str, bool]:
     """Where this validation belongs, its brand, and whether the brand's folder is there.
 
-    A store RetailNext gives no store id comes with its RetailNext brand ("subscription"),
-    since its code cannot say it: it is filed in a folder already there for that brand, and
+    A store whose code cannot say its brand (Lorna Jane's 453, or a store RetailNext gives no
+    store id) is filed by the RetailNext brand ("subscription") its footage came from: in a
+    folder already there for that brand, and
     never in a new one made from a subscription name nobody chose as a folder.
     """
     code = str(store.get("code") or "").strip()
@@ -106,8 +107,8 @@ def destination(root: Path, store: dict[str, Any]) -> tuple[Path, str, bool]:
         there = brand_folder(root, sub)
         if not there.is_dir():
             raise DeliveryError(
-                f"{code} has no store ID in RetailNext, so nothing says which brand folder it "
-                f"goes in, and {root} has no folder for {sub}. Make that folder there first, "
+                f"{code} does not say its brand, and {root} has no folder for {sub}, the "
+                f"RetailNext brand its footage came from. Make that folder there first, "
                 f"or file this validation by hand.")
         brand = there.name
     if brand is None:

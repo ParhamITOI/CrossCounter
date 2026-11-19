@@ -71,7 +71,7 @@ def test_a_store_with_no_store_id_files_under_its_retailnext_brand(drive: Path) 
     brand. Their RetailNext brand does, but only into a folder already there for it."""
     assert delivery.folder_name("Perdaman", "Northam Blvd", "Northam Blvd") == "Perdaman Northam Blvd"
     store = {"code": "Northam Blvd", "name": "Northam Blvd", "subscription": "perdaman"}
-    with pytest.raises(delivery.DeliveryError, match="no store ID in RetailNext.*perdaman"):
+    with pytest.raises(delivery.DeliveryError, match="does not say its brand.*no folder for perdaman"):
         delivery.where(drive, store)
     assert not (drive / "perdaman").exists()  # never made from a subscription's name
     (drive / "PERDAMAN").mkdir()
@@ -80,6 +80,12 @@ def test_a_store_with_no_store_id_files_under_its_retailnext_brand(drive: Path) 
     with pytest.raises(delivery.DeliveryError, match="no folder for rag"):
         delivery.where(drive, {"code": "Narellan YD-649", "name": "Narellan YD-649",
                                "subscription": "rag"})
+    # a store whose code is only a number goes in its RetailNext brand's folder too
+    (drive / "Lorna Jane").mkdir()
+    assert delivery.where(drive, {"code": "453", "name": "Bowral", "subscription": "lornajane"}) == (
+        drive / "Lorna Jane" / "Lorna Jane Bowral - 453")
+    # and a code with a brand prefix still says its own brand
+    assert delivery.where(drive, {"code": "CN-123", "name": "Tweed Heads", "subscription": "rag"}).parent.name == "Connor"
 
 
 def test_what_would_be_copied_is_said_before_anything_is(drive: Path, tmp_path: Path) -> None:
